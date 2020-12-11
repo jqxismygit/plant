@@ -14,7 +14,7 @@ $ npm install plant
 直接使用
 
 ```js
-import { usePlant } from 'plant';
+import { usePlant } from '@sensoro/plant';
 
 const model = {
   fetch: () =>
@@ -43,7 +43,7 @@ export default () => {
 ```js
 import React from 'react';
 import styles from './index.css';
-import { createPlant, usePlantContext, Plant } from 'plant';
+import { createPlant, usePlantContext, Plant } from '@sensoro/plant';
 
 const plant = createPlant();
 

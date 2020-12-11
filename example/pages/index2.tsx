@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './index.css';
-import { createPlant, usePlantContext, Plant } from 'plant';
+import { createPlant, usePlantContext, Plant } from '@sensoro/plant';
 
 const plant = createPlant();
 

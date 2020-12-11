@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './index.css';
-import { usePlant } from 'plant';
+import { usePlant } from '@sensoro/plant';
 
 const model = {
   fetch: () =>
