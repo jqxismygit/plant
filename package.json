@@ -1,6 +1,6 @@
 {
   "name": "@sensoro/plant",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "es/index.js",
   "description": "致力于解决前端增删改查较为繁琐的问题",
   "authors": {
