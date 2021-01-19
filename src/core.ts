@@ -57,7 +57,7 @@ export const usePlantCore = <T = any>(
     (data) => {
       if (listDataLike(data)) {
         const { total, list } = data;
-        if (list?.length > 0) {
+        if (list?.length >= 0) {
           setState({
             total: total || list?.length,
             list,
@@ -147,9 +147,15 @@ export const usePlantCore = <T = any>(
   const detail = attachTemp(
     (data) => {
       if (data?.[dataKey]) {
-        const cList = state?.list.map((i) =>
-          i?.[dataKey] === data?.[dataKey] ? data : i,
-        );
+        const cList = [data]
+          .concat(state?.list ?? [])
+          .reduce((prev, c, idx) => {
+            if (c?.[dataKey] !== data?.[dataKey] || idx === 0) {
+              prev.push(c);
+            }
+            return prev;
+          }, []);
+
         setState({
           total: state?.total,
           list: cList,
