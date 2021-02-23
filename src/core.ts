@@ -76,7 +76,7 @@ export const usePlantCore = <T = any>(
       if (listDataLike(data)) {
         const { total, list } = data;
         if (list.length > 0) {
-          const cList = list.concat(state.list);
+          const cList = state.list.concat(list);
           setState({
             total: total || list?.length + state?.total,
             list: cList,
