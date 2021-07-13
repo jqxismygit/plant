@@ -9,9 +9,27 @@ interface State<T> {
   byId: { [key: string]: T };
 }
 
+const action = {
+  fetch: 'fetch',
+  append: 'append',
+  create: 'create',
+  update: 'update',
+  remove: 'remove',
+  detail: 'detail',
+} as const;
+
+type Action = keyof typeof action;
+
 const useLoadings = (size: number = 6) => {
   const [] = React.useState();
   return Array.from({ length: size }).map((i) => React.useState(false));
+};
+
+const useRequestKeys = () => {
+  return Object.keys(action).reduce((prev, k) => {
+    prev[k] = React.useRef<number>(0);
+    return prev;
+  }, {});
 };
 
 export const usePlantCore = <T = any>(
@@ -27,6 +45,7 @@ export const usePlantCore = <T = any>(
   });
 
   const loadings = useLoadings();
+  const requestKeys = useRequestKeys();
   const { dataKey = 'id' } = options;
 
   const { transformAllIds, transformById } = plugin;
@@ -36,6 +55,8 @@ export const usePlantCore = <T = any>(
     actionName: string,
     setLoading: (loading: boolean) => void,
   ) => (param: any) => {
+    requestKeys[actionName].current += 1;
+    const lastKey = requestKeys[actionName].current;
     return new Promise(async (resolve, reject) => {
       if (!model?.[actionName]) {
         reject(`模型未定义${actionName}请求，该方法不生效`);
@@ -43,7 +64,9 @@ export const usePlantCore = <T = any>(
         try {
           setLoading(true);
           const { data } = await model[actionName](param);
-          func?.(data, param);
+          if (lastKey === requestKeys[actionName].current) {
+            func?.(data, param);
+          }
           resolve(data);
         } catch (error) {
           reject(`[${actionName}]失败！`);
@@ -67,7 +90,7 @@ export const usePlantCore = <T = any>(
         }
       }
     },
-    'fetch',
+    action.fetch,
     loadings[0][1],
   );
 
@@ -86,7 +109,7 @@ export const usePlantCore = <T = any>(
         }
       }
     },
-    'append',
+    action.append,
     loadings[1][1],
   );
 
@@ -103,7 +126,7 @@ export const usePlantCore = <T = any>(
         });
       }
     },
-    'create',
+    action.create,
     loadings[2][1],
   );
 
@@ -122,7 +145,7 @@ export const usePlantCore = <T = any>(
         });
       }
     },
-    'update',
+    action.update,
     loadings[3][1],
   );
 
@@ -140,7 +163,7 @@ export const usePlantCore = <T = any>(
         });
       }
     },
-    'remove',
+    action.remove,
     loadings[4][1],
   );
 
@@ -164,7 +187,7 @@ export const usePlantCore = <T = any>(
         });
       }
     },
-    'detail',
+    action.detail,
     loadings[5][1],
   );
 
