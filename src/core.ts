@@ -1,6 +1,6 @@
-import React from 'react';
-import { PlantModel, PlantCore, Plugin, Option } from './types';
-import { listDataLike } from './utils';
+import React from "react";
+import { PlantModel, PlantCore, Plugin, Option } from "./types";
+import { listDataLike } from "./utils";
 
 interface State<T> {
   total: number;
@@ -10,12 +10,12 @@ interface State<T> {
 }
 
 const action = {
-  fetch: 'fetch',
-  append: 'append',
-  create: 'create',
-  update: 'update',
-  remove: 'remove',
-  detail: 'detail',
+  fetch: "fetch",
+  append: "append",
+  create: "create",
+  update: "update",
+  remove: "remove",
+  detail: "detail",
 } as const;
 
 type Action = keyof typeof action;
@@ -35,7 +35,7 @@ const useRequestKeys = () => {
 export const usePlantCore = <T = any>(
   model: PlantModel,
   options: Option = {},
-  plugin: Plugin,
+  plugin: Plugin
 ): PlantCore => {
   const [state, setState] = React.useState<State<T>>({
     total: 0,
@@ -46,35 +46,37 @@ export const usePlantCore = <T = any>(
 
   const loadings = useLoadings();
   const requestKeys = useRequestKeys();
-  const { dataKey = 'id' } = options;
+  const { dataKey = "id" } = options;
 
   const { transformAllIds, transformById } = plugin;
 
-  const attachTemp = (
-    func: (data: any, param: any) => void,
-    actionName: string,
-    setLoading: (loading: boolean) => void,
-  ) => (param: any) => {
-    requestKeys[actionName].current += 1;
-    const lastKey = requestKeys[actionName].current;
-    return new Promise(async (resolve, reject) => {
-      if (!model?.[actionName]) {
-        reject(`模型未定义${actionName}请求，该方法不生效`);
-      } else {
-        try {
-          setLoading(true);
-          const { data } = await model[actionName](param);
-          if (lastKey === requestKeys[actionName].current) {
-            func?.(data, param);
+  const attachTemp =
+    (
+      func: (data: any, param: any) => void,
+      actionName: string,
+      setLoading: (loading: boolean) => void
+    ) =>
+    (param: any) => {
+      requestKeys[actionName].current += 1;
+      const lastKey = requestKeys[actionName].current;
+      return new Promise(async (resolve, reject) => {
+        if (!model?.[actionName]) {
+          reject(`模型未定义${actionName}请求，该方法不生效`);
+        } else {
+          try {
+            setLoading(true);
+            const data = await model[actionName](param);
+            if (lastKey === requestKeys[actionName].current) {
+              func?.(data, param);
+            }
+            resolve(data);
+          } catch (error) {
+            reject(`[${actionName}]失败！`);
           }
-          resolve(data);
-        } catch (error) {
-          reject(`[${actionName}]失败！`);
+          setLoading(false);
         }
-        setLoading(false);
-      }
-    });
-  };
+      });
+    };
 
   const fetch = attachTemp(
     (data) => {
@@ -91,7 +93,7 @@ export const usePlantCore = <T = any>(
       }
     },
     action.fetch,
-    loadings[0][1],
+    loadings[0][1]
   );
 
   const append = attachTemp(
@@ -110,7 +112,7 @@ export const usePlantCore = <T = any>(
       }
     },
     action.append,
-    loadings[1][1],
+    loadings[1][1]
   );
 
   const create = attachTemp(
@@ -127,7 +129,7 @@ export const usePlantCore = <T = any>(
       }
     },
     action.create,
-    loadings[2][1],
+    loadings[2][1]
   );
 
   const update = attachTemp(
@@ -135,7 +137,7 @@ export const usePlantCore = <T = any>(
       const updated = { ...param, ...data };
       if (updated?.[dataKey]) {
         const cList = state?.list.map((i) =>
-          i?.[dataKey] === updated?.[dataKey] ? updated : i,
+          i?.[dataKey] === updated?.[dataKey] ? updated : i
         );
         setState({
           total: state?.total,
@@ -146,14 +148,14 @@ export const usePlantCore = <T = any>(
       }
     },
     action.update,
-    loadings[3][1],
+    loadings[3][1]
   );
 
   const remove = attachTemp(
     (data, param) => {
       if (param?.[dataKey]) {
         const cList = state.list.filter(
-          (i) => i?.[dataKey] !== param?.[dataKey],
+          (i) => i?.[dataKey] !== param?.[dataKey]
         );
         setState({
           total: state?.total - 1,
@@ -164,7 +166,7 @@ export const usePlantCore = <T = any>(
       }
     },
     action.remove,
-    loadings[4][1],
+    loadings[4][1]
   );
 
   const detail = attachTemp(
@@ -188,7 +190,7 @@ export const usePlantCore = <T = any>(
       }
     },
     action.detail,
-    loadings[5][1],
+    loadings[5][1]
   );
 
   return {
